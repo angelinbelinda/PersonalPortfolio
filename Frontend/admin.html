@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | Contact Messages</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #210b1b;
+            color: white;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #f3a6d4;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #cdb8c8;
+            margin-bottom: 30px;
+        }
+
+        .message-card {
+            background: #351426;
+            border: 1px solid rgba(236, 150, 210, 0.25);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .message-card h3 {
+            color: #f3a6d4;
+            margin-bottom: 10px;
+        }
+
+        .message-card p {
+            color: #eee;
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .message-card strong {
+            color: #d9a6ca;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #cdb8c8;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: #ec96d2;
+            color: #210b1b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <a href="index.html" class="back-btn">
+            ← Back to Portfolio
+        </a>
+
+        <h1>Contact Messages 💌</h1>
+
+        <p class="subtitle">
+            Messages received through my portfolio.
+        </p>
+
+        <div id="messages">
+            <div class="empty">
+                Loading messages...
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        async function loadMessages() {
+
+            const messagesContainer =
+                document.getElementById("messages");
+
+            try {
+
+                const response = await fetch(
+                    "http://127.0.0.1:5000/api/contact"
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error("Unable to load messages");
+                }
+
+                if (data.messages.length === 0) {
+
+                    messagesContainer.innerHTML = `
+                        <div class="empty">
+                            No messages yet.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                messagesContainer.innerHTML = "";
+
+                data.messages.forEach(function (message) {
+
+                    const card = document.createElement("div");
+
+                    card.className = "message-card";
+
+                    card.innerHTML = `
+                        <h3>${message.name}</h3>
+
+                        <p>
+                            <strong>Email:</strong>
+                            ${message.email}
+                        </p>
+
+                        <p>
+                            <strong>Message:</strong>
+                            ${message.message}
+                        </p>
+
+                        <p>
+                            <strong>Date:</strong>
+                            ${new Date(message.createdAt).toLocaleString()}
+                        </p>
+                    `;
+
+                    messagesContainer.appendChild(card);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                messagesContainer.innerHTML = `
+                    <div class="empty">
+                        ❌ Unable to load messages.
+                        <br><br>
+                        Make sure the Node.js server is running.
+                    </div>
+                `;
+            }
+        }
+
+        loadMessages();
+
+    </script>
+
+</body>
+
+</html>
